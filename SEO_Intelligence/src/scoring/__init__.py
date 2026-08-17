@@ -1,0 +1,1 @@
+"""Explainable demand, competition, rankability, opportunity, and confidence scores."""

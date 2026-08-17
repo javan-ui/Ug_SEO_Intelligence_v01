@@ -1,0 +1,3 @@
+# The research engine uses Python's standard library for runtime operation.
+# Optional PDF support can be installed separately:
+#   pip install weasyprint

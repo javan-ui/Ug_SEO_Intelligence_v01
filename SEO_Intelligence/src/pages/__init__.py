@@ -1,0 +1,1 @@
+"""Competitor page fetching and on-page analysis."""

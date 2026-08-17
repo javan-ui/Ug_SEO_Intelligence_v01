@@ -1,0 +1,1 @@
+"""Configuration package for the Uganda SEO intelligence engine."""
