@@ -1,16 +1,52 @@
-name: Run Custom Command
+name: Move Contents to Root
+
 on:
-  workflow_dispatch: # This allows you to click a button in GitHub to run it
+  push:
+    branches:
+      - main # Change this to match your default branch name if it is not main
+
+permissions:
+  contents: write
 
 jobs:
-  execute:
+  reorganize-repo:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Run Script
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Move files and delete folder
         run: |
-          mv SEO_Intelligence/* .
-          mv SEO_Intelligence/.* .
-          git commit -m "moved"
-          git push origin main
-          git add .
+          # Check if the folder exists to prevent workflow failure
+          if [ -d "SEO_Intelligence" ]; then
+            echo "Folder found. Moving contents..."
+            
+            # Move regular files and folders
+            mv SEO_Intelligence/* . 2>/dev/null || true
+            
+            # Move hidden files and folders (excluding . and ..)
+            find SEO_Intelligence -maxdepth 1 -name ".*" ! -name "." ! -name ".." -exec mv {} . \; 2>/dev/null || true
+            
+            # Remove the empty SEO_Intelligence directory
+            rm -rf SEO_Intelligence
+          else
+            echo "SEO_Intelligence folder not found. Skipping move."
+          fi
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@://github.com"
+          
+          # Stage all changes (adds new root files, tracks deletions)
+          git add -A
+          
+          # Check if there are actual changes to commit to prevent errors
+          if ! git diff-index --quiet HEAD; then
+            git commit -m "Automation: Move contents of SEO_Intelligence to root"
+            git push
+          else
+            echo "No changes detected. Skipping commit."
+          fi
+          
